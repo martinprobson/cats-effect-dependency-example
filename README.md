@@ -5,14 +5,14 @@ A toy application, that shows how to manage dependencies using CATS Effect 3. Lo
 ## Dependency Diagram
 This application models a simple user registration service that has the following components/dependencies: -
 
-
+![Dependency Diagram](dependency_diagram.png "Dependency Diagram")
 
 ## Run application
-Backend database is H2 in memory (connection parameters set in `application.properties`.
+Backend database is H2 in memory (connection parameters set in [application.properties](src/main/resources/application.properties)
 
 ```shell
 sbt run
 ```
 
 ## ToDo
-Add tests with test implementations of our services via munit cats effect 3.
+Add tests with test implementations of the services via [munit cats effect 3](https://github.com/typelevel/munit-cats-effect)
