@@ -23,7 +23,9 @@ lazy val root = (project in file(".")).settings(
     "mysql" % "mysql-connector-java" % "8.0.30",
     "com.h2database" % "h2" % "1.4.200",
     // testing
-    "org.typelevel" %% "munit-cats-effect-3" % "1.0.7" % Test
+    "org.typelevel" %% "cats-effect-testing-scalatest" % "1.4.0" % Test,
+    "org.scalatest" %% "scalatest" % "3.2.11" % Test,
+    "org.scalatest" %% "scalatest-flatspec" % "3.2.11" % Test
   )
 )
 

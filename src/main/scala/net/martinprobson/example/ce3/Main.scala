@@ -20,11 +20,13 @@ object Main extends IOApp.Simple:
     log.info("Program starting") *> program(xa) *> log.info("Program exit")
   }
 
-  def program(xa: Transactor[IO]): IO[Unit] = for
+  private def program(xa: Transactor[IO]): IO[Unit] = for
+    // Setup dependencies...
     userRegistration <- UserRegistration.apply(
       UserModel.apply(DB.apply(xa)),
       UserNotifier.apply
     )
+    // Generate some users to try out the code...
     _ <- Range(1, 20).toList
       .map { i => User(UserName(s"User-$i"), Email(s"email-$i")) }
       // parTraverseN to limit the number of threads created on the blocking thread pool
