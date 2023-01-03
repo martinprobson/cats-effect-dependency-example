@@ -14,5 +14,3 @@ Backend database is H2 in memory (connection parameters set in [application.prop
 sbt run
 ```
 
-## ToDo
-Add tests with test implementations of the services via [munit cats effect 3](https://github.com/typelevel/munit-cats-effect)
