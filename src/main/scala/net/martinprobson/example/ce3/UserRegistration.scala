@@ -8,7 +8,8 @@ import UserModel.*
 
 // Service
 trait UserRegistration:
-  def register(user: User): IO[(User,String)]
+  // TODO Convert to IO[Either[String,(User,String)]]
+  def register(user: User): IO[(User, String)]
 
 object UserRegistration:
 
@@ -19,12 +20,12 @@ object UserRegistration:
   ) extends UserRegistration:
     def log: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
-    override def register(user: User): IO[(User,String)] = for
+    override def register(user: User): IO[(User, String)] = for
       u <- userModel.flatMap(_.insert(user))
       _ <- log.info(s"Insert: $u")
       m <- userNotifier.flatMap(_.notify(u, "Welcome!"))
       _ <- log.info(s"Sent $m to $u")
-    yield (u,m)
+    yield (u, m)
 
   def apply(
       userModel: IO[UserModel],

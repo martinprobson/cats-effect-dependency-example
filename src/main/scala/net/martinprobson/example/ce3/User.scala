@@ -1,6 +1,5 @@
 package net.martinprobson.example.ce3
 
-import cats.effect.IO
 import User.*
 
 case class User(id: USER_ID, name: UserName, email: Email)

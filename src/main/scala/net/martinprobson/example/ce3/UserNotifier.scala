@@ -16,7 +16,7 @@ object UserNotifier:
 
     override def notify(user: User, msg: String): IO[String] =
       val res = s"Sending $msg to ${user.email}"
-      log.info(res) >> IO(res) 
+      log.debug(res) >> IO(res)
 
   def apply: IO[UserNotifier] = IO(UserNotifierImpl)
 

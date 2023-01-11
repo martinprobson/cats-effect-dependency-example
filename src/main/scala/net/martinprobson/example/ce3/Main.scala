@@ -6,11 +6,7 @@ import cats.implicits.*
 import doobie.Transactor
 import org.typelevel.log4cats.SelfAwareStructuredLogger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
-
-import DB.*
 import User.*
-import UserModel.*
-import UserRegistration.*
 
 object Main extends IOApp.Simple:
 
@@ -20,17 +16,22 @@ object Main extends IOApp.Simple:
     log.info("Program starting") *> program(xa) *> log.info("Program exit")
   }
 
-  private def program(xa: Transactor[IO]): IO[Unit] = for
+  def program(xa: Transactor[IO]) = for
     // Setup dependencies...
+    db <- RelationalDB.apply(xa)
     userRegistration <- UserRegistration.apply(
-      UserModel.apply(DB.apply(xa)),
+      UserModel.apply(IO(db)),
       UserNotifier.apply
     )
+    _ <- log.debug("Create user table..")
+    result <- db.createTable
+    _ <- log.debug(s"Create table result = $result")
     // Generate some users to try out the code...
-    _ <- Range(1, 20).toList
+    _ <- Range(1, 5000).toList
       .map { i => User(UserName(s"User-$i"), Email(s"email-$i")) }
       // parTraverseN to limit the number of threads created on the blocking thread pool
       .parTraverseN(100)(u => userRegistration.register(u))
+      .void
   yield ()
 
 end Main
