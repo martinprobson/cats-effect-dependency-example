@@ -16,12 +16,12 @@ object Main extends IOApp.Simple:
     log.info("Program starting") *> program(xa) *> log.info("Program exit")
   }
 
-  def program(xa: Transactor[IO]) = for
+  private def program(xa: Transactor[IO]) = for
     // Setup dependencies...
     db <- RelationalDB.apply(xa)
     userRegistration <- UserRegistration.apply(
       UserModel.apply(IO(db)),
-      UserNotifier.apply
+      UserNotifier.apply(EmailService.apply)
     )
     _ <- log.debug("Create user table..")
     result <- db.createTable

@@ -9,7 +9,7 @@ import UserModel.*
 // Service
 trait UserRegistration:
   // TODO Convert to IO[Either[String,(User,String)]]
-  def register(user: User): IO[(User, String)]
+  def register(user: User): IO[User]
 
 object UserRegistration:
 
@@ -20,12 +20,33 @@ object UserRegistration:
   ) extends UserRegistration:
     def log: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
-    override def register(user: User): IO[(User, String)] = for
-      u <- userModel.flatMap(_.insert(user))
-      _ <- log.info(s"Insert: $u")
-      m <- userNotifier.flatMap(_.notify(u, "Welcome!"))
-      _ <- log.info(s"Sent $m to $u")
-    yield (u, m)
+    override def register(user: User): IO[User] =
+      userModel.flatMap { um =>
+        um.insert(user)
+          .redeemWith(
+            ex => log.error(s"Failed to insert $user due to $ex"),
+            usr => {
+              log.info(s"Inserted $usr") >>
+                userNotifier.flatMap { un => un.notify(usr, "Welcome!") } >>
+                log.info(s"Notified $usr")
+            }
+          )
+      } >>
+        IO(user)
+
+//    override def register(user: User): IO[User] = for
+//      um <- userModel
+//      un <- userNotifier
+//      result <- um.insert(user).attempt
+//      u <- result match {
+//        case Left(ex) => log.error(s"Failed to insert $user - $ex") >> IO(user)
+//        case Right(u) =>
+//          log.info(s"Inserted $u")
+//          un.notify(u, "Welcome!")
+//          log.info(s"Notified $u")
+//          IO(u)
+//      }
+//    yield u
 
   def apply(
       userModel: IO[UserModel],
