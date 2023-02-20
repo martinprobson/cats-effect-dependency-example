@@ -14,6 +14,7 @@ case class InMemoryDB(
 
   override def insertUser(user: User): IO[User] = for {
     log <- Slf4jLogger.create[IO]
+    // _ <- IO.raiseError(new Exception("!!!!"))
     id <- counter.modify(x => (x + 1, x + 1))
     _ <- log.debug(s"About to create : $user")
     _ <- db.update(users => users.updated(key = id, value = user))
@@ -21,7 +22,7 @@ case class InMemoryDB(
     _ <- log.debug(s"Created user: $user")
   } yield user
 
-  override def createTable: IO[Int] = ???
+  override def createTable: IO[Int] = IO.pure(0)
 
   override def countUsers: IO[Long] = db.get.flatMap { users =>
     IO(users.size.toLong)

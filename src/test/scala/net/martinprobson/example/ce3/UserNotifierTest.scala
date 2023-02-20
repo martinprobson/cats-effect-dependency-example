@@ -11,11 +11,11 @@ class UserNotifierTest extends AsyncFunSuite with AsyncIOSpec:
 
   test("UserNotifier Test") {
     val user: User = User(1, UserName("testuser"), Email("testemail"))
-    val userNotifier: IO[UserNotifier] = UserNotifier.apply(EmailService.apply)
-    userNotifier
-      .flatMap { un =>
-        un.notify(user, "Hello!")
-      }
+    (for {
+      emailService <- EmailService.apply
+      userNotifier <- UserNotifier(emailService)
+      r <- userNotifier.notify(user, "Hello!")
+    } yield r)
       .asserting(result => result shouldBe "Sending Hello! to testemail")
   }
 

@@ -20,33 +20,35 @@ class UserRegistrationTest extends AsyncFunSuite with AsyncIOSpec:
     val user = User(1, UserName("testuser"), Email("testemail"))
     (for {
       db <- InMemoryDB.empty
+      userModel <- UserModel(db)
       userRegistration <- UserRegistration(
-        UserModel.apply(IO(db)),
-        IO(MockUserNotifier)
+        userModel,
+        MockUserNotifier
       )
       result <- userRegistration.register(user)
       count <- db.countUsers
     } yield (result, count)).asserting {
-      _ shouldBe ((user, s"Notified $user with Welcome!"), 1L)
+      _ shouldBe (user, 1L)
     }
   }
 
   test("Multiple users") {
     (for {
       db <- InMemoryDB.empty
+      userModel <- UserModel(db)
       userRegistration <- UserRegistration(
-        UserModel.apply(IO(db)),
-        IO(MockUserNotifier)
+        userModel,
+        MockUserNotifier
       )
       _ <- Range
-        .inclusive(1, 10000)
+        .inclusive(1, 10000000)
         .toList
         .map { i => User(UserName(s"User-$i"), Email(s"email-$i")) }
         // parTraverseN to limit the number of threads created on the blocking thread pool
-        .parTraverseN(100)(u => userRegistration.register(u))
+        .parTraverseN(100000)(u => userRegistration.register(u))
         .void
       count <- db.countUsers
-    } yield count).asserting { _ shouldBe 10000L }
+    } yield count).asserting { _ shouldBe 10000000L }
   }
 
 end UserRegistrationTest

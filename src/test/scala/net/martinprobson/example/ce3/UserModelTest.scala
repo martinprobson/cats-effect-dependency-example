@@ -11,11 +11,11 @@ class UserModelTest extends AsyncFunSuite with AsyncIOSpec:
 
   test("UserModel Test") {
     val user: User = User(1, UserName("testuser"), Email("testemail"))
-    val userModel: IO[UserModel] = UserModel.apply(InMemoryDB.empty)
-    userModel
-      .flatMap { um =>
-        um.insert(user)
-      }
+    (for {
+      db <- InMemoryDB.empty
+      userModel <- UserModel(db)
+      u <- userModel.insert(user)
+    } yield u)
       .asserting(u => u shouldBe user)
   }
 

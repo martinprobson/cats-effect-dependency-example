@@ -8,7 +8,7 @@ import User.*
 // service
 trait EmailService:
 
-  def send(email: Email, msg: String): IO[Unit]
+  def send(email: Email, msg: String): IO[String]
 
 end EmailService
 
@@ -19,8 +19,9 @@ object EmailService:
 
     def log: SelfAwareStructuredLogger[IO] = Slf4jLogger.getLogger[IO]
 
-    override def send(email: Email, msg: String): IO[Unit] =
-      log.debug(s"Sending $msg to $email")
+    override def send(email: Email, msg: String): IO[String] =
+      val result = s"Sending $msg to $email"
+      log.debug(result) >> IO.pure(result)
 
   def apply: IO[EmailService] = IO(EmailServiceImpl)
 
